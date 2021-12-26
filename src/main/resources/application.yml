@@ -1,0 +1,35 @@
+server:
+  port: 8080
+  # servlet 上下文路径，默认/，可以通过此方式设置上下文访问
+  servlet:
+    context-path: /chat
+spring:
+  datasource:
+    name: chat
+    #采用druid的数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    #连接数据库的url
+    url: jdbc:mysql:///chat
+    #用户名
+    username: root
+    password: 240582597
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #监控统计
+    filters: stat
+    initial-size: 2 #初始化连接
+    max-idle: 10 #对打连接数
+    min-idle: 1 #最小的空闲连接数
+    #最大的活动连接数
+    max-active: 20
+    #获取连接超时的等待时间
+    max-wait: 60000
+    #间隔多久进行以此检测，检测需要关闭的空闲连接
+    time-between-evict-runs-millis: 60000
+    #一个连接在连接池中最小生存空间
+    min-evictable-time-millis: 300000
+    #验证连接有效与否的SQL，不同的数据配置不同
+    validation-query: SELECT 'x'
+    #指明连接是否被空闲连接回收期（如果有）进行检验，如果检测失败，则连接将被从池中去除
+    test-while-idle: true
+    #连接借出时不要测试，否则影响性能
+    test-on-borrow: false
