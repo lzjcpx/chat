@@ -15,4 +15,9 @@ public class TestController {
         return "test";
     }
 
+    @RequestMapping("/userList")
+    public String userList(){
+        return "/user_list";
+    }
+
 }
