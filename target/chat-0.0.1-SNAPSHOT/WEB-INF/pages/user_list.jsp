@@ -13,5 +13,6 @@
 </head>
 <body>
 用户列表页面
+${user.username}
 </body>
 </html>

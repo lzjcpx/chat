@@ -10,4 +10,10 @@ public interface UserService {
 
     User getUserById(String id);
 
+    //根据用户名查找指定用户对象
+    User queryUserNameIsExit(String username);
+
+    //保存
+    User insert(User user);
+
 }

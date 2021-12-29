@@ -5,11 +5,11 @@ server:
     context-path: /chat
 spring:
   datasource:
-    name: chat
+    name: db20211228_chat
     #采用druid的数据源
     type: com.alibaba.druid.pool.DruidDataSource
     #连接数据库的url
-    url: jdbc:mysql:///chat
+    url: jdbc:mysql:///db20211228_chat?serverTimezone=GMT%2B8
     #用户名
     username: root
     password: 240582597

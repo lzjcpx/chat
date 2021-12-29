@@ -20,6 +20,15 @@
     from t_users
     where id = #{id,jdbcType=VARCHAR}
   </select>
+
+  <!--根据用户名查找指定用户对象-->
+  <select id="queryUserNameIsExit" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from t_users
+    where username = #{username,jdbcType=VARCHAR}
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
     delete from t_users
     where id = #{id,jdbcType=VARCHAR}
