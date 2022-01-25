@@ -38,4 +38,11 @@ public class UserServiceImpl implements UserService {
         userMapper.insert(user);
         return user;
     }
+
+    @Override
+    public User updateUserInfo(User user) {
+        userMapper.updateByPrimaryKeySelective(user);
+        User result = userMapper.selectByPrimaryKey(user.getId());
+        return result;
+    }
 }

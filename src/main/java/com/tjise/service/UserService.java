@@ -16,4 +16,6 @@ public interface UserService {
     //保存
     User insert(User user);
 
+    //更新用户
+    User updateUserInfo(User user);
 }
