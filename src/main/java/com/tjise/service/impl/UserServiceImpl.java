@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     public User insert(User user) {
         String userId = sid.nextShort();
         //为每个注册用户生成一个唯一的二维码
-        String qrCodePath="C://user"+ userId +"qrcode.png";
+        String qrCodePath = "/usr/local/qrcode/"+userId+"qrcode.png";
         //创建二维码对象信息
         qrCodeUtils.createQRCode(qrCodePath,"bird_qrcode:"+user.getUsername());
         MultipartFile qrcodeFile = FileUtils.fileToMultipart(qrCodePath);
