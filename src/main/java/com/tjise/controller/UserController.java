@@ -1,6 +1,7 @@
 package com.tjise.controller;
 
 import com.tjise.bo.UserBo;
+import com.tjise.enums.SearchFriendsStatusEnum;
 import com.tjise.pojo.User;
 import com.tjise.service.UserService;
 import com.tjise.utils.ChatJSONResult;
@@ -8,6 +9,7 @@ import com.tjise.utils.FastDFSClient;
 import com.tjise.utils.FileUtils;
 import com.tjise.utils.MD5Utils;
 import com.tjise.vo.UserVO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -87,6 +89,45 @@ public class UserController {
     public ChatJSONResult setNickName(User user){
         User userResult = userService.updateUserInfo(user);
         return ChatJSONResult.ok(userResult);
+    }
+
+    //搜索好友的请求方法
+    @RequestMapping("/searchFriend")
+    @ResponseBody
+    public ChatJSONResult searchFriend(String myUserId, String friendUserName){
+        /**
+         * 前置条件：
+         * 1.搜索的用户如果不存在，则返回【无此用户】
+         * 2.搜索的账号如果是你自己，则返回【不能添加自己】
+         * 3.搜索的朋友已经是你好友，返回【该用户已经是你的好友】
+         */
+        Integer status = userService.preconditionSearchFriends(myUserId, friendUserName);
+        if (status == SearchFriendsStatusEnum.SUCCESS.status){
+            User user = userService.queryUserNameIsExit(friendUserName);
+            UserVO userVO = new UserVO();
+            BeanUtils.copyProperties(user, userVO);
+            return ChatJSONResult.ok(userVO);
+        }else {
+            String msg = SearchFriendsStatusEnum.getMsgByKey(status);
+            return ChatJSONResult.errorMsg(msg);
+        }
+    }
+
+    //添加好友请求
+    @RequestMapping("/addFriendRequest")
+    @ResponseBody
+    public ChatJSONResult addFriendRequest(String myUserId, String friendUserName){
+        if (StringUtils.isBlank(myUserId) || StringUtils.isBlank(friendUserName)){
+            return ChatJSONResult.errorMsg("好友信息为空");
+        }
+        Integer status = userService.preconditionSearchFriends(myUserId, friendUserName);
+        if (status == SearchFriendsStatusEnum.SUCCESS.status){
+            userService.sendFriendRequest(myUserId, friendUserName);
+        }else {
+            String msg = SearchFriendsStatusEnum.getMsgByKey(status);
+            return ChatJSONResult.errorMsg(msg);
+        }
+        return ChatJSONResult.ok();
     }
 
     @RequestMapping("/getUser")

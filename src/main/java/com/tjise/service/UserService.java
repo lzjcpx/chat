@@ -18,4 +18,8 @@ public interface UserService {
 
     //更新用户
     User updateUserInfo(User user);
+
+    Integer preconditionSearchFriends(String myUserId, String friendUserName);
+
+    void sendFriendRequest(String myUserId, String friendUserName);
 }
