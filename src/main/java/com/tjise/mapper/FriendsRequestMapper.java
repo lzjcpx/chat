@@ -14,4 +14,7 @@ public interface FriendsRequestMapper {
     int updateByPrimaryKeySelective(FriendsRequest record);
 
     int updateByPrimaryKey(FriendsRequest record);
+
+    //根据好友请求对象进行删除操作
+    void deleteByFriendRequest(FriendsRequest friendsRequest);
 }

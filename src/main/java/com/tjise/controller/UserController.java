@@ -1,13 +1,17 @@
 package com.tjise.controller;
 
 import com.tjise.bo.UserBo;
+import com.tjise.enums.OperatorFriendRequestTypeEnum;
 import com.tjise.enums.SearchFriendsStatusEnum;
+import com.tjise.pojo.FriendsRequest;
 import com.tjise.pojo.User;
 import com.tjise.service.UserService;
 import com.tjise.utils.ChatJSONResult;
 import com.tjise.utils.FastDFSClient;
 import com.tjise.utils.FileUtils;
 import com.tjise.utils.MD5Utils;
+import com.tjise.vo.FriendsRequestVO;
+import com.tjise.vo.MyFriendsVO;
 import com.tjise.vo.UserVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @auther shkstart
@@ -135,6 +140,31 @@ public class UserController {
         User user = userService.getUserById(id);
         model.addAttribute("user", user);
         return "user_list";
+    }
+
+    @RequestMapping("/queryFriendRequest")
+    @ResponseBody
+    public ChatJSONResult queryFriendRequest(String userId){
+        List<FriendsRequestVO> friendsRequestVOS = userService.queryFriendRequestList(userId);
+        return ChatJSONResult.ok(friendsRequestVOS);
+    }
+
+    @RequestMapping("/operFriendRequest")
+    @ResponseBody
+    public ChatJSONResult operFriendRequest(String acceptUserId,String sendUserId, Integer operType){
+        FriendsRequest friendsRequest = new FriendsRequest();
+        friendsRequest.setAcceptUserId(acceptUserId);
+        friendsRequest.setSendUserId(sendUserId);
+        if (operType == OperatorFriendRequestTypeEnum.IGNORE.type){
+            //满足此条件将需要对好友请求表中的数据进行删除
+            userService.deleteFriendRequest(friendsRequest);
+        }else if (operType == OperatorFriendRequestTypeEnum.PASS.type){
+            //向好友表中添加一条记录，删除好友请求表中对应的记录
+            userService.passFriendRequest(sendUserId, acceptUserId);
+        }
+        //查询好友表中的列表数据
+        List<MyFriendsVO> myFriends = userService.queryMyFriends(acceptUserId);
+        return ChatJSONResult.ok(myFriends);
     }
 
 }

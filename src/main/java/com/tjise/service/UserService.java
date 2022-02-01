@@ -1,6 +1,11 @@
 package com.tjise.service;
 
+import com.tjise.pojo.FriendsRequest;
 import com.tjise.pojo.User;
+import com.tjise.vo.FriendsRequestVO;
+import com.tjise.vo.MyFriendsVO;
+
+import java.util.List;
 
 /**
  * @auther shkstart
@@ -19,7 +24,21 @@ public interface UserService {
     //更新用户
     User updateUserInfo(User user);
 
+    //搜索好友的前置条件
     Integer preconditionSearchFriends(String myUserId, String friendUserName);
 
+    //发送好友请求
     void sendFriendRequest(String myUserId, String friendUserName);
+
+    //好友请求列表查询
+    List<FriendsRequestVO> queryFriendRequestList(String acceptUserId);
+
+    //处理好友请求-忽略好友请求
+    void deleteFriendRequest(FriendsRequest friendsRequest);
+
+    //处理好友请求-通过好友请求
+    void passFriendRequest(String sendUserId, String acceptUserId);
+
+    //好友列表查询
+    List<MyFriendsVO> queryMyFriends(String userId);
 }

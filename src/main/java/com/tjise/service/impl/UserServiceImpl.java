@@ -5,16 +5,20 @@ import com.tjise.enums.SearchFriendsStatusEnum;
 import com.tjise.mapper.FriendsRequestMapper;
 import com.tjise.mapper.MyFriendsMapper;
 import com.tjise.mapper.UserMapper;
+import com.tjise.mapper.UserMapperCustom;
 import com.tjise.pojo.FriendsRequest;
 import com.tjise.pojo.MyFriends;
 import com.tjise.pojo.User;
 import com.tjise.service.UserService;
 import com.tjise.utils.FastDFSClient;
 import com.tjise.utils.QRCodeUtils;
+import com.tjise.vo.FriendsRequestVO;
+import com.tjise.vo.MyFriendsVO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @auther shkstart
@@ -40,6 +44,9 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     FriendsRequestMapper friendsRequestMapper;
+
+    @Resource
+    UserMapperCustom userMapperCustom;
 
     @Override
     public User getUserById(String id) {
@@ -115,5 +122,43 @@ public class UserServiceImpl implements UserService {
             friendsRequest.setRequestDateTime(new Date());
             friendsRequestMapper.insert(friendsRequest);
         }
+    }
+
+    @Override
+    public List<FriendsRequestVO> queryFriendRequestList(String acceptUserId) {
+        return userMapperCustom.queryFriendRequestList(acceptUserId);
+    }
+
+    @Override
+    public void deleteFriendRequest(FriendsRequest friendsRequest) {
+        friendsRequestMapper.deleteByFriendRequest(friendsRequest);
+    }
+
+    @Override
+    public void passFriendRequest(String sendUserId, String acceptUserId) {
+        saveFriends(sendUserId, acceptUserId);
+        saveFriends(acceptUserId, sendUserId);
+
+        FriendsRequest friendsRequest = new FriendsRequest();
+        friendsRequest.setSendUserId(sendUserId);
+        friendsRequest.setAcceptUserId(acceptUserId);
+        deleteFriendRequest(friendsRequest);
+    }
+
+    @Override
+    public List<MyFriendsVO> queryMyFriends(String userId) {
+        return userMapperCustom.queryMyFriends(userId);
+    }
+
+    //通过好友请求并保存数据到数据到myFriends表中
+    private void saveFriends(String sendUserId, String acceptUserId){
+        MyFriends myFriends = new MyFriends();
+        String recordId = sid.nextShort();
+
+        myFriends.setId(recordId);
+        myFriends.setMyUserId(sendUserId);
+        myFriends.setMyFriendUserId(acceptUserId);
+
+        myFriendsMapper.insert(myFriends);
     }
 }
