@@ -1,5 +1,6 @@
 package com.tjise.service;
 
+import com.tjise.netty.ChatMsg;
 import com.tjise.pojo.FriendsRequest;
 import com.tjise.pojo.User;
 import com.tjise.vo.FriendsRequestVO;
@@ -41,4 +42,11 @@ public interface UserService {
 
     //好友列表查询
     List<MyFriendsVO> queryMyFriends(String userId);
+
+    //保存用户聊天消息
+    String saveMsg(ChatMsg chatMsg);
+
+    void updateMsgSigned(List<String> msgIdList);
+
+    List<com.tjise.pojo.ChatMsg> getUnReadMsgList(String acceptUserId);
 }

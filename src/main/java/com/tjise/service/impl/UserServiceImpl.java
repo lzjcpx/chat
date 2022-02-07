@@ -1,19 +1,24 @@
 package com.tjise.service.impl;
 
 import com.idworker.Sid;
+import com.tjise.enums.MsgActionEnum;
+import com.tjise.enums.MsgSignFlagEnum;
 import com.tjise.enums.SearchFriendsStatusEnum;
-import com.tjise.mapper.FriendsRequestMapper;
-import com.tjise.mapper.MyFriendsMapper;
-import com.tjise.mapper.UserMapper;
-import com.tjise.mapper.UserMapperCustom;
+import com.tjise.mapper.*;
+import com.tjise.netty.ChatMsg;
+import com.tjise.netty.DataContent;
+import com.tjise.netty.UserChanelRel;
 import com.tjise.pojo.FriendsRequest;
 import com.tjise.pojo.MyFriends;
 import com.tjise.pojo.User;
 import com.tjise.service.UserService;
 import com.tjise.utils.FastDFSClient;
+import com.tjise.utils.JsonUtils;
 import com.tjise.utils.QRCodeUtils;
 import com.tjise.vo.FriendsRequestVO;
 import com.tjise.vo.MyFriendsVO;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -47,6 +52,9 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     UserMapperCustom userMapperCustom;
+
+    @Resource
+    ChatMsgMapper chatMsgMapper;
 
     @Override
     public User getUserById(String id) {
@@ -143,11 +151,48 @@ public class UserServiceImpl implements UserService {
         friendsRequest.setSendUserId(sendUserId);
         friendsRequest.setAcceptUserId(acceptUserId);
         deleteFriendRequest(friendsRequest);
+
+        Channel sendChannel = UserChanelRel.get(sendUserId);
+        if (sendChannel != null){
+            //使用websocket 主动推送消息到请求发起者，更新它的通讯录列表为最新
+            DataContent dataContent = new DataContent();
+            dataContent.setAction(MsgActionEnum.PULL_FRIEND.type);
+
+            //消息的推送
+            sendChannel.writeAndFlush(new TextWebSocketFrame(JsonUtils.objectToJson(dataContent)));
+        }
+
     }
 
     @Override
     public List<MyFriendsVO> queryMyFriends(String userId) {
         return userMapperCustom.queryMyFriends(userId);
+    }
+
+    @Override
+    public String saveMsg(ChatMsg chatMsg) {
+        com.tjise.pojo.ChatMsg msgDB = new com.tjise.pojo.ChatMsg();
+        String msgId = sid.nextShort();
+        msgDB.setId(msgId);
+        msgDB.setAcceptUserId(chatMsg.getReceiverId());
+        msgDB.setSendUserId(chatMsg.getSenderId());
+        msgDB.setCreateTime(new Date());
+        msgDB.setSignFlag(MsgSignFlagEnum.unsign.type);
+        msgDB.setMsg(chatMsg.getMsg());
+
+        chatMsgMapper.insert(msgDB);
+        return msgId;
+    }
+
+    @Override
+    public void updateMsgSigned(List<String> msgIdList) {
+        userMapperCustom.batchUpdateMsgSigned(msgIdList);
+    }
+
+    @Override
+    public List<com.tjise.pojo.ChatMsg> getUnReadMsgList(String acceptUserId) {
+        List<com.tjise.pojo.ChatMsg> result = chatMsgMapper.getUnReadMsgListByAcceptUid(acceptUserId);
+        return result;
     }
 
     //通过好友请求并保存数据到数据到myFriends表中

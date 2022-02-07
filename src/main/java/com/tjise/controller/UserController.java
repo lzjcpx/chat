@@ -3,6 +3,7 @@ package com.tjise.controller;
 import com.tjise.bo.UserBo;
 import com.tjise.enums.OperatorFriendRequestTypeEnum;
 import com.tjise.enums.SearchFriendsStatusEnum;
+import com.tjise.pojo.ChatMsg;
 import com.tjise.pojo.FriendsRequest;
 import com.tjise.pojo.User;
 import com.tjise.service.UserService;
@@ -165,6 +166,28 @@ public class UserController {
         //查询好友表中的列表数据
         List<MyFriendsVO> myFriends = userService.queryMyFriends(acceptUserId);
         return ChatJSONResult.ok(myFriends);
+    }
+
+    @RequestMapping("/myFriends")
+    @ResponseBody
+    public ChatJSONResult myFriends(String userId){
+        if (StringUtils.isBlank(userId)){
+            return ChatJSONResult.errorMsg("用户id为空");
+        }
+        //数据库中查询好友
+        List<MyFriendsVO> myFriends = userService.queryMyFriends(userId);
+        return ChatJSONResult.ok(myFriends);
+    }
+
+    @RequestMapping("/getUnReadMsgList")
+    @ResponseBody
+    public ChatJSONResult getUnReadMsgList(String acceptUserId){
+        if (StringUtils.isBlank(acceptUserId)){
+            return ChatJSONResult.errorMsg("接收者ID不能为空");
+        }
+        //根据接收者ID查找未签收的消息列表
+        List<ChatMsg> unReadMsgList = userService.getUnReadMsgList(acceptUserId);
+        return ChatJSONResult.ok(unReadMsgList);
     }
 
 }

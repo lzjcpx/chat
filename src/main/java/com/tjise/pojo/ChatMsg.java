@@ -15,6 +15,7 @@ public class ChatMsg {
 
     private Date createTime;
 
+
     public String getId() {
         return id;
     }
